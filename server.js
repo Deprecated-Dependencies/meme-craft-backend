@@ -9,6 +9,9 @@ const app = express();
 
 app.use(cors());
 
+// Require in the verifyUser function from auth.js
+const verifyUser = require('./auth.js');
+
 mongoose.connect(process.env.DATABASE_URL);
 
 const db = mongoose.connection;
@@ -28,6 +31,25 @@ app.get('/memesDB', getMemesDB);
 app.post('/memes', postMemesDB);
 app.delete('/memes/:id', deleteMemesDB);
 app.put('/memes/:id', putMemesDB);
+
+app.get('/token', getToken);
+
+async function getToken(req, res, next){
+
+  verifyUser(req, async (err, user) => {
+    if(err) {
+      console.error(err);
+      res.send('Invalid token');
+    } else {
+      try {
+        console.log('user authenticated')
+        res.status(200).send('Authenticated');
+      } catch (error) {
+        next(error);
+      }
+    }
+  });
+}
 
 async function getMemesAPI(req, res, next) {
   try {
