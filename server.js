@@ -11,32 +11,78 @@ app.use(cors());
 
 mongoose.connect(process.env.DATABASE_URL);
 
-
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
   console.log('Mongoose is connected');
 });
 
+const Meme = require('./components/schema');
 
 app.use(express.json());
 
 const PORT = process.env.PORT || 3002;
 
-app.get('/memes', getMemes);
+app.get('/memes', getMemesAPI);
+app.get('/memesDB', getMemesDB);
+app.post('/memes', postMemesDB);
+app.delete('/memes/:id', deleteMemesDB);
+app.put('/memes/:id', putMemesDB);
 
-
-async function getMemes(req, res) {
-  try{
-    let memeURL =  `https://api.imgflip.com/get_memes`;
+async function getMemesAPI(req, res, next) {
+  try {
+    let memeURL = `https://api.imgflip.com/get_memes`;
     let memeResult = await axios.get(memeURL);
     res.status(200).send(memeResult.data);
-  }catch(error) {
-    res.status(500).send(error.message);
+  } catch (error) {
+    next(error);
   }
 }
 
+async function getMemesDB(req, res, next) {
+  try {
+    let queryObject = {};
+    if (req.query.name) {
+      queryObject.name = req.query.name;
+    }
+    let results = await Meme.find(queryObject);
+    res.status(200).send(results);
+  } catch (error) {
+    next(error);
+  }
+}
 
+async function postMemesDB(req, res, next) {
+  try {
+    let createdMeme = await Meme.create(req.body);
+    res.status(200).send(createdMeme);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function deleteMemesDB(req, res, next) {
+  try {
+    let id = req.params.id;
+    await Meme.findByIdAndDelete(id);
+    res.status(200).send('Meme deleted');
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function putMemesDB(req, res, next) {
+  try {
+    let id = req.params.id;
+    let updateMeme = await Meme.findByIdAndUpdate(id, req.body, {
+      new: true,
+      overwrite: true,
+    });
+    res.status(200).send(updateMeme);
+  } catch (error) {
+    next(error);
+  }
+}
 
 app.get('*', (req, res) => {
   res.status(404).send('Not Found');
