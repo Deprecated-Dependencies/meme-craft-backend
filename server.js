@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
+//const FormData = require('form-data');
 
 app.use(cors());
 
@@ -24,10 +25,12 @@ app.use(express.json());
 const PORT = process.env.PORT || 3002;
 
 app.get('/memes', getMemesAPI);
-app.get('/memesDB', getMemesDB);
-app.post('/memes', postMemesDB);
-app.delete('/memes/:id', deleteMemesDB);
-app.put('/memes/:id', putMemesDB);
+app.post('/memes', postMemesAPI);
+
+app.get('/memeDB', getMemesDB);
+app.post('/memeDB', postMemesDB);
+app.delete('/memeDB/:id', deleteMemesDB);
+app.put('/memeDB/:id', putMemesDB);
 
 async function getMemesAPI(req, res, next) {
   try {
@@ -37,6 +40,28 @@ async function getMemesAPI(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+function postMemesAPI(req, response, next) {
+  let bodyFormData = new URLSearchParams();
+  bodyFormData.append('template_id', req.body.template_id);
+  bodyFormData.append('username', process.env.API_USERNAME);
+  bodyFormData.append('password', process.env.API_PASSWORD);
+  bodyFormData.append('text0', 'AB');
+  bodyFormData.append('text1', 'CD');
+  req.body.boxes.map((box, index) => bodyFormData.append(`boxes[${index}][text]`, req.body.boxes[index].text));
+  console.log(bodyFormData);
+  axios({
+    method: 'post',
+    url: process.env.API_URL,
+    data: bodyFormData,
+    header: { 'Content-type': 'application/x-www-form-urlencoded' }
+  }).then(res => {
+    console.log(res);
+    response.status(200).send(res.data);
+  }).catch(error => {
+    next(error);
+  });
 }
 
 async function getMemesDB(req, res, next) {
