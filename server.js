@@ -36,13 +36,13 @@ app.get('/token', getToken);
 
 async function getToken(req, res, next){
 
-  verifyUser(req, async (err, user) => {
+  verifyUser(req, async (err, user) => { // eslint-disable-line
     if(err) {
       console.error(err);
       res.send('Invalid token');
     } else {
       try {
-        console.log('user authenticated')
+        console.log('user authenticated');
         res.status(200).send('Authenticated');
       } catch (error) {
         next(error);
@@ -110,7 +110,7 @@ app.get('*', (req, res) => {
   res.status(404).send('Not Found');
 });
 
-app.use((error, req, res, next) => {
+app.use((error, req, res, next) => { // eslint-disable-line
   res.status(500).send(error.message);
 });
 
