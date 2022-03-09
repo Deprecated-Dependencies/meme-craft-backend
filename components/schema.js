@@ -3,9 +3,11 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const memeSchema = new Schema({
-  name: { type: String, required: true },
+  userName: { type: String, required: true },
   url: { type: String, required: true },
-  box_count: { type: [], required: true },
+  page_url: {type: String, required: true},
+  boxes: { type: [], required: true },
+  template: {type: {}, required: true}
 });
 
 const Meme = mongoose.model('Meme', memeSchema);
