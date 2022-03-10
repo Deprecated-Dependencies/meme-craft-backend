@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
+const cache = require('./cache.js');
 //const FormData = require('form-data');
 
 app.use(cors());
@@ -33,15 +34,24 @@ app.delete('/memeDB/:id', deleteMemesDB);
 app.put('/memeDB/:id', putMemesDB);
 
 async function getMemesAPI(req, res, next) {
-  try {
-    let memeURL = `https://api.imgflip.com/get_memes`;
-    let memeResult = await axios.get(memeURL);
-    res.status(200).send(memeResult.data);
-  } catch (error) {
-    next(error);
+  let key = 'memeData';
+  if (cache[key] && (Date.now() - cache[key].timeStamp < 1000 * 60 * 60 * 24 * 30)) {
+    console.log('cache data available');
+    res.status(200).send(cache[key].data.data);
+  } else {
+    try {
+      let memeURL = `https://api.imgflip.com/get_memes`;
+      console.log('cache data unavailable');
+      cache[key] = {};
+      cache[key].timeStamp = Date.now();
+      cache[key].data = await axios.get(memeURL);
+      console.log(cache[key]);
+      res.status(200).send(cache[key].data.data);
+    } catch (error) {
+      next(error);
+    }
   }
 }
-
 function postMemesAPI(req, response, next) {
   let bodyFormData = new URLSearchParams();
   bodyFormData.append('template_id', req.body.template_id);
