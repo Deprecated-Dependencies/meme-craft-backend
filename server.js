@@ -7,7 +7,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
 const cache = require('./cache.js');
-//const FormData = require('form-data');
 
 app.use(cors());
 
@@ -123,7 +122,8 @@ app.get('*', (req, res) => {
   res.status(404).send('Not Found');
 });
 
-app.use((error, req, res, next) => {
+// eslint-disable-next-line
+app.use((error, req, res, next) => { 
   res.status(500).send(error.message);
 });
 
