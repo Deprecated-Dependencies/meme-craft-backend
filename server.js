@@ -77,8 +77,8 @@ function postMemesAPI(req, response, next) {
 async function getMemesDB(req, res, next) {
   try {
     let queryObject = {};
-    if (req.query.name) {
-      queryObject.name = req.query.name;
+    if (req.query.userName) {
+      queryObject.userName = req.query.userName;
     }
     let results = await Meme.find(queryObject);
     res.status(200).send(results);
