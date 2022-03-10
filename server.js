@@ -7,7 +7,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const app = express();
 const cache = require('./cache.js');
-//const FormData = require('form-data');
 
 app.use(cors());
 
@@ -77,8 +76,8 @@ function postMemesAPI(req, response, next) {
 async function getMemesDB(req, res, next) {
   try {
     let queryObject = {};
-    if (req.query.name) {
-      queryObject.name = req.query.name;
+    if (req.query.userName) {
+      queryObject.userName = req.query.userName;
     }
     let results = await Meme.find(queryObject);
     res.status(200).send(results);
@@ -123,7 +122,8 @@ app.get('*', (req, res) => {
   res.status(404).send('Not Found');
 });
 
-app.use((error, req, res, next) => {
+// eslint-disable-next-line
+app.use((error, req, res, next) => { 
   res.status(500).send(error.message);
 });
 
