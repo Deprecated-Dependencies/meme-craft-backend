@@ -18,7 +18,7 @@ db.once('open', function () {
   console.log('Mongoose is connected');
 });
 
-const Meme = require('./components/schema');
+const Meme = require('./modules/schema');
 
 app.use(express.json());
 
@@ -35,7 +35,6 @@ app.put('/memeDB/:id', putMemesDB);
 async function getMemesAPI(req, res, next) {
   let key = 'memeData';
   if (cache[key] && (Date.now() - cache[key].timeStamp < 1000 * 60 * 60 * 24 * 30)) {
-    console.log('cache data available');
     res.status(200).send(cache[key].data.data);
   } else {
     try {
@@ -44,7 +43,6 @@ async function getMemesAPI(req, res, next) {
       cache[key] = {};
       cache[key].timeStamp = Date.now();
       cache[key].data = await axios.get(memeURL);
-      console.log(cache[key]);
       res.status(200).send(cache[key].data.data);
     } catch (error) {
       next(error);
@@ -59,14 +57,12 @@ function postMemesAPI(req, response, next) {
   bodyFormData.append('text0', 'AB');
   bodyFormData.append('text1', 'CD');
   req.body.boxes.map((box, index) => bodyFormData.append(`boxes[${index}][text]`, req.body.boxes[index].text));
-  console.log(bodyFormData);
   axios({
     method: 'post',
     url: process.env.API_URL,
     data: bodyFormData,
     header: { 'Content-type': 'application/x-www-form-urlencoded' }
   }).then(res => {
-    console.log(res);
     response.status(200).send(res.data);
   }).catch(error => {
     next(error);
